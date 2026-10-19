@@ -79,12 +79,53 @@ const stageInfo = {
 		</div>
 		<p class="sa-weakest" data-weakest></p>
 		<p class="sa-next" data-next></p>
+		<div class="sa-export" data-export hidden>
+			<label class="sa-org">
+				Organization (optional, shown on the report)
+				<input type="text" data-org maxlength="80" autocomplete="organization" />
+			</label>
+			<button type="button" class="sa-primary" data-report>Download report (PDF)</button>
+			<button type="button" class="sa-secondary" data-copy>Copy summary</button>
+			<p class="sa-status" data-status role="status"></p>
+		</div>
 		<button type="button" class="sa-reset" data-reset>Clear my answers</button>
 	</aside>
 </div>
 
 <script>
 	const KEY = 'fpm-self-assessment-v1';
+	const ORG_KEY = 'fpm-self-assessment-org';
+	const BOOK = 'Firewall Policy Management in Modern Security Operations';
+	const PAGE_URL = 'https://firewallpolicybook.com/self-assessment/';
+	const CAVEAT =
+		'The stage bands are editorial decision rules for this self-assessment, not industry benchmarks, so treat them as a directional heuristic. ' +
+		'Maturity is capability-specific, and the section scores can show a mixed profile that the total hides. ' +
+		'A score near a band boundary means the program is transitioning between stages.';
+
+	type Score = { title: string; sum: number; max: number };
+	type Result = {
+		score: number;
+		scores: Score[];
+		stage: number;
+		name: string;
+		band: string;
+		lowest: Score[];
+		next: string;
+	};
+
+	const weakestText = (lowest: Score[], all: number, whose: string) =>
+		lowest.length === all
+			? `The three sections score evenly, so no single section is dragging ${whose} total down.`
+			: `${lowest.map((s) => s.title).join(' and ')} ${lowest.length > 1 ? 'pull' : 'pulls'} ${whose} total down most. That is where the next quarter's work goes.`;
+
+	const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: string) => {
+		const node = document.createElement(tag);
+		if (cls) node.className = cls;
+		if (text !== undefined) node.textContent = text;
+		return node;
+	};
+
+	const today = () => new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
 	for (const root of document.querySelectorAll<HTMLElement>('.sa')) {
 		const form = root.querySelector('form')!;
@@ -108,6 +149,20 @@ const stageInfo = {
 			} catch {}
 		};
 
+		const orgInput = root.querySelector<HTMLInputElement>('[data-org]')!;
+		try {
+			orgInput.value = localStorage.getItem(ORG_KEY) ?? '';
+		} catch {}
+		orgInput.addEventListener('input', () => {
+			try {
+				localStorage.setItem(ORG_KEY, orgInput.value);
+			} catch {}
+		});
+
+		let current: Result | null = null;
+		const exportBox = root.querySelector<HTMLElement>('[data-export]')!;
+		const status = root.querySelector<HTMLElement>('[data-status]')!;
+
 		for (const [name, value] of Object.entries(load())) {
 			const input = form.querySelector<HTMLInputElement>(`input[name="${name}"][value="${value}"]`);
 			if (input) input.checked = true;
@@ -124,7 +179,7 @@ const stageInfo = {
 				for (const input of section.querySelectorAll<HTMLInputElement>('input:checked')) sum += Number(input.value);
 				const max = Number(section.dataset.max);
 				section.querySelector('[data-subtotal]')!.textContent = String(sum);
-				return { title: section.dataset.title!, sum, max };
+				return { title: section.dataset.title!, sum, max } as Score;
 			});
 			const score = scores.reduce((n, s) => n + s.sum, 0);
 
@@ -146,6 +201,8 @@ const stageInfo = {
 				weakest.textContent = '';
 				next.textContent = '';
 				root.classList.remove('sa-done');
+				exportBox.hidden = true;
+				current = null;
 				return;
 			}
 
@@ -156,13 +213,127 @@ const stageInfo = {
 			stageEl.textContent = `Stage ${band.stage}: ${info.name} (${band.min}–${band.max} of ${total})`;
 
 			const low = Math.min(...scores.map((s) => s.sum / s.max));
-			const lowest = scores.filter((s) => s.sum / s.max === low).map((s) => s.title);
-			weakest.textContent =
-				lowest.length === scores.length
-					? 'Your three sections score evenly, so no single section is dragging the total down.'
-					: `${lowest.join(' and ')} ${lowest.length > 1 ? 'pull' : 'pulls'} your total down most. That is where the next quarter's work goes.`;
+			const lowest = scores.filter((s) => s.sum / s.max === low);
+			weakest.textContent = weakestText(lowest, scores.length, 'your');
 			next.textContent = info.next;
+
+			exportBox.hidden = false;
+			status.textContent = '';
+			current = {
+				score,
+				scores,
+				stage: band.stage,
+				name: info.name,
+				band: `${band.min}–${band.max} of ${total}`,
+				lowest,
+				next: info.next,
+			};
 		};
+
+		// The report is a print-only copy of the result. The reader saves it as PDF
+		// from the print dialog, so the answers never leave the browser.
+		const report = el('div', 'sa-report');
+		document.body.append(report);
+
+		const buildReport = (r: Result) => {
+			const org = orgInput.value.trim();
+			report.replaceChildren();
+
+			const header = el('header', 'sa-r-header');
+			header.append(
+				el('p', 'sa-r-kicker', 'Firewall management maturity self-assessment'),
+				el('h1', undefined, org || 'Self-assessment report'),
+				el('p', 'sa-r-date', today()),
+			);
+
+			const summary = el('section', 'sa-r-summary');
+			const big = el('p', 'sa-r-score');
+			big.append(String(r.score), el('span', undefined, ` / ${total}`));
+			const stageBox = el('div');
+			stageBox.append(el('p', 'sa-r-stage', `Stage ${r.stage}: ${r.name}`), el('p', 'sa-r-band', `Stage band ${r.band}`));
+			summary.append(big, stageBox);
+
+			const bars = el('section');
+			bars.append(el('h2', undefined, 'Section scores'));
+			for (const s of r.scores) {
+				const row = el('div', 'sa-r-bar');
+				const label = el('div', 'sa-r-bar-label');
+				label.append(el('span', undefined, s.title), el('span', undefined, `${s.sum} / ${s.max}`));
+				const track = el('div', 'sa-r-track');
+				const fill = el('div', 'sa-r-fill');
+				fill.style.width = `${(s.sum / s.max) * 100}%`;
+				track.append(fill);
+				row.append(label, track);
+				bars.append(row);
+			}
+
+			const focus = el('section');
+			focus.append(
+				el('h2', undefined, 'Where to focus'),
+				el('p', undefined, weakestText(r.lowest, r.scores.length, 'the')),
+				el('p', undefined, r.next),
+			);
+
+			const answers = el('section', 'sa-r-answers');
+			answers.append(el('h2', undefined, 'Answers'));
+			for (const section of sections) {
+				const table = el('table');
+				const head = el('tr');
+				head.append(el('th', undefined, section.dataset.title!), el('th', 'sa-r-num', 'Score'));
+				table.append(head);
+				for (const fieldset of section.querySelectorAll('fieldset')) {
+					const tr = el('tr');
+					const checked = fieldset.querySelector<HTMLInputElement>('input:checked');
+					tr.append(el('td', undefined, fieldset.querySelector('legend')!.textContent!), el('td', 'sa-r-num', checked?.value ?? '–'));
+					table.append(tr);
+				}
+				answers.append(table);
+			}
+
+			const note = el('p', 'sa-r-note', `Each statement is scored from 0 (no) to 5 (yes, fully implemented). ${CAVEAT}`);
+			const footer = el('footer', 'sa-r-footer', `Scored with the self-assessment from ${BOOK} by Maurizio Moroni. ${PAGE_URL}`);
+
+			report.append(header, summary, bars, focus, answers, note, footer);
+		};
+
+		root.querySelector('[data-report]')!.addEventListener('click', () => {
+			if (!current) return;
+			buildReport(current);
+			const title = document.title;
+			const org = orgInput.value.trim();
+			// Browsers use the document title as the suggested PDF file name.
+			document.title = `Firewall maturity self-assessment${org ? ` - ${org}` : ''} - ${new Date().toISOString().slice(0, 10)}`;
+			document.documentElement.classList.add('sa-printing');
+			const done = () => {
+				document.documentElement.classList.remove('sa-printing');
+				document.title = title;
+				window.removeEventListener('afterprint', done);
+			};
+			window.addEventListener('afterprint', done);
+			window.print();
+		});
+
+		root.querySelector('[data-copy]')!.addEventListener('click', async () => {
+			if (!current) return;
+			const r = current;
+			const org = orgInput.value.trim();
+			const lines = [
+				'Firewall management maturity self-assessment',
+				...(org ? [`Organization: ${org}`] : []),
+				`Date: ${today()}`,
+				`Result: Stage ${r.stage}: ${r.name} (${r.score} of ${total}; band ${r.band})`,
+				...r.scores.map((s) => `${s.title}: ${s.sum} / ${s.max}`),
+				weakestText(r.lowest, r.scores.length, 'the'),
+				`Next step: ${r.next}`,
+				`Scored with the self-assessment from ${BOOK}: ${PAGE_URL}`,
+			];
+			try {
+				await navigator.clipboard.writeText(lines.join('\n'));
+				status.textContent = 'Summary copied to the clipboard.';
+			} catch {
+				status.textContent = 'Could not copy. Your browser blocked clipboard access.';
+			}
+		});
 
 		form.addEventListener('change', render);
 		root.querySelector('[data-reset]')!.addEventListener('click', () => {
@@ -186,6 +357,8 @@ const stageInfo = {
 		.sa-result {
 			position: sticky;
 			top: calc(var(--sl-nav-height) + 1.5rem);
+			max-height: calc(100vh - var(--sl-nav-height) - 3rem);
+			overflow-y: auto;
 		}
 	}
 	.sa-section + .sa-section {
@@ -309,6 +482,56 @@ const stageInfo = {
 	.sa-next {
 		font-size: var(--sl-text-sm);
 	}
+	.sa-export {
+		display: grid;
+		gap: 0.5rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--sl-color-gray-5);
+	}
+	.sa-export[hidden] {
+		display: none;
+	}
+	.sa-org {
+		display: grid;
+		gap: 0.25rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-2);
+	}
+	.sa-org input {
+		font: inherit;
+		font-size: var(--sl-text-base);
+		padding: 0.375rem 0.5rem;
+		border: 1px solid var(--sl-color-gray-4);
+		border-radius: 0.375rem;
+		background: var(--sl-color-black);
+		color: var(--sl-color-white);
+	}
+	.sa-primary,
+	.sa-secondary {
+		font: inherit;
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.375rem;
+		cursor: pointer;
+	}
+	.sa-primary {
+		background: var(--sl-color-accent);
+		border: 1px solid var(--sl-color-accent);
+		color: var(--sl-color-black);
+	}
+	.sa-secondary {
+		background: none;
+		border: 1px solid var(--sl-color-accent);
+		color: var(--sl-color-accent-high);
+	}
+	.sa-status {
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-2);
+	}
+	.sa-status:empty {
+		display: none;
+	}
 	.sa-reset {
 		font: inherit;
 		font-size: var(--sl-text-sm);
@@ -318,5 +541,141 @@ const stageInfo = {
 		padding: 0.25rem 0.75rem;
 		color: var(--sl-color-gray-2);
 		cursor: pointer;
+	}
+</style>
+
+<style is:global>
+	/* Print-only report, built by the script above and appended to <body>. */
+	.sa-report {
+		display: none;
+	}
+	@media print {
+		html.sa-printing body {
+			background: #fff;
+		}
+		html.sa-printing body > :not(.sa-report) {
+			display: none !important;
+		}
+		html.sa-printing .sa-report {
+			display: block;
+			color: #1a1a1a;
+			font: 10.5pt/1.45 -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+			-webkit-print-color-adjust: exact;
+			print-color-adjust: exact;
+		}
+	}
+	@page {
+		margin: 16mm 16mm 18mm;
+	}
+	.sa-report h1 {
+		font-size: 20pt;
+		line-height: 1.2;
+		margin: 0.15em 0 0.1em;
+		color: #1a1a1a;
+	}
+	.sa-report h2 {
+		font-size: 12pt;
+		margin: 1.4em 0 0.5em;
+		color: #2e74b5;
+		break-after: avoid;
+	}
+	.sa-report p {
+		margin: 0 0 0.5em;
+	}
+	.sa-report .sa-r-header {
+		border-bottom: 2px solid #2e74b5;
+		padding-bottom: 0.6em;
+	}
+	.sa-report .sa-r-kicker {
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		font-size: 8.5pt;
+		color: #2e74b5;
+		margin: 0;
+	}
+	.sa-report .sa-r-date {
+		color: #555;
+		margin: 0;
+	}
+	.sa-report .sa-r-summary {
+		display: flex;
+		align-items: center;
+		gap: 1.5em;
+		margin-top: 1.2em;
+		padding: 0.8em 1em;
+		background: #eef3f9;
+		border-radius: 4px;
+	}
+	.sa-report .sa-r-score {
+		font-size: 30pt;
+		font-weight: 700;
+		line-height: 1;
+		margin: 0;
+	}
+	.sa-report .sa-r-score span {
+		font-size: 12pt;
+		font-weight: 400;
+		color: #555;
+	}
+	.sa-report .sa-r-stage {
+		font-size: 14pt;
+		font-weight: 700;
+		color: #2e74b5;
+		margin: 0;
+	}
+	.sa-report .sa-r-band {
+		color: #555;
+		margin: 0;
+	}
+	.sa-report .sa-r-bar {
+		margin-bottom: 0.5em;
+	}
+	.sa-report .sa-r-bar-label {
+		display: flex;
+		justify-content: space-between;
+	}
+	.sa-report .sa-r-track {
+		height: 7px;
+		background: #dde3ea;
+		border-radius: 4px;
+		overflow: hidden;
+		margin-top: 2px;
+	}
+	.sa-report .sa-r-fill {
+		height: 100%;
+		background: #2e74b5;
+	}
+	.sa-report table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-bottom: 0.9em;
+		break-inside: avoid;
+	}
+	.sa-report th,
+	.sa-report td {
+		text-align: left;
+		vertical-align: top;
+		padding: 0.3em 0.4em;
+		border-bottom: 1px solid #d5dbe2;
+	}
+	.sa-report th {
+		background: #eef3f9;
+		font-weight: 700;
+	}
+	.sa-report .sa-r-num {
+		width: 4em;
+		text-align: center;
+	}
+	.sa-report .sa-r-note {
+		font-size: 9pt;
+		color: #555;
+		margin-top: 1em;
+	}
+	.sa-report .sa-r-footer {
+		font-size: 8.5pt;
+		color: #777;
+		border-top: 1px solid #d5dbe2;
+		padding-top: 0.5em;
+		margin-top: 1em;
 	}
 </style>
