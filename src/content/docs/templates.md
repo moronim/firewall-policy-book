@@ -155,4 +155,4 @@ Use this as the record for any firewall rule change, one per change. Capture it 
 >
 > Post-change verification: \[Result of connectivity / impact check\]
 
-For the full policy behind this record, covering change categories, risk classification, roles, approval workflow, and compliance mapping, see the companion IT Change Management Policy template distributed with this book.
+For the full policy behind this record, covering change categories, risk classification, roles, approval workflow, and compliance mapping, see the companion IT Change Management Policy template, which you can download from [firewallpolicybook.com/downloads](https://firewallpolicybook.com/downloads/).
