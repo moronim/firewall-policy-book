@@ -79,13 +79,14 @@ const stageInfo = {
 		</div>
 		<p class="sa-weakest" data-weakest></p>
 		<p class="sa-next" data-next></p>
-		<div class="sa-export" data-export hidden>
+		<div class="sa-export" data-export>
+			<p class="sa-export-hint" data-export-hint></p>
 			<label class="sa-org">
 				Organization (optional, shown on the report)
 				<input type="text" data-org maxlength="80" autocomplete="organization" />
 			</label>
-			<button type="button" class="sa-primary" data-report>Download report (PDF)</button>
-			<button type="button" class="sa-secondary" data-copy>Copy summary</button>
+			<button type="button" class="sa-primary" data-report disabled>Download report (PDF)</button>
+			<button type="button" class="sa-secondary" data-copy disabled>Copy summary</button>
 			<p class="sa-status" data-status role="status"></p>
 		</div>
 		<button type="button" class="sa-reset" data-reset>Clear my answers</button>
@@ -160,7 +161,17 @@ const stageInfo = {
 		});
 
 		let current: Result | null = null;
-		const exportBox = root.querySelector<HTMLElement>('[data-export]')!;
+		const exportHint = root.querySelector<HTMLElement>('[data-export-hint]')!;
+		const exportButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-report], [data-copy]')];
+		// The report buttons are always visible so readers know they exist; they
+		// switch on when the last statement is scored.
+		const setExport = (left: number) => {
+			for (const b of exportButtons) b.disabled = left > 0;
+			exportHint.textContent =
+				left > 0
+					? `Score ${left} more statement${left > 1 ? 's' : ''} to unlock your PDF report and summary.`
+					: 'Your report is ready.';
+		};
 		const status = root.querySelector<HTMLElement>('[data-status]')!;
 
 		for (const [name, value] of Object.entries(load())) {
@@ -201,7 +212,7 @@ const stageInfo = {
 				weakest.textContent = '';
 				next.textContent = '';
 				root.classList.remove('sa-done');
-				exportBox.hidden = true;
+				setExport(questions - answered);
 				current = null;
 				return;
 			}
@@ -217,7 +228,7 @@ const stageInfo = {
 			weakest.textContent = weakestText(lowest, scores.length, 'your');
 			next.textContent = info.next;
 
-			exportBox.hidden = false;
+			setExport(0);
 			status.textContent = '';
 			current = {
 				score,
@@ -488,8 +499,15 @@ const stageInfo = {
 		padding-top: 0.75rem;
 		border-top: 1px solid var(--sl-color-gray-5);
 	}
-	.sa-export[hidden] {
-		display: none;
+	.sa-export-hint {
+		font-size: var(--sl-text-sm);
+		font-weight: 600;
+		color: var(--sl-color-accent-high);
+	}
+	.sa-primary:disabled,
+	.sa-secondary:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
 	}
 	.sa-org {
 		display: grid;
