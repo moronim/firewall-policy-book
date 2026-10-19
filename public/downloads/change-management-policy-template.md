@@ -73,7 +73,7 @@ This policy applies to:
 
 - Pre-approved by CISO or technical leads
 
-- Examples: security patch deployment, firewall rule updates via AlgoSec workflows, SSL certificate renewals, routine backups, standard user account provisioning
+- Examples: security patch deployment, firewall rule updates via the NSPM change workflow, SSL certificate renewals, routine backups, standard user account provisioning
 
 - **Approval Required:** None (pre-authorized in policy)
 
@@ -739,7 +739,7 @@ List of pre-approved standard changes with documented procedures:
 
 - Security patch deployment (OS, applications, firmware)
 - SSL/TLS certificate renewal
-- Firewall rule updates via AlgoSec workflow
+- Firewall rule updates via the NSPM change workflow
 - User account provisioning/deprovisioning
 - Routine backup and restore operations
 - DNS record updates (non-critical systems)
