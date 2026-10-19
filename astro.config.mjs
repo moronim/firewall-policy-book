@@ -2,10 +2,10 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
-// GitHub Pages project site: https://moronim.github.io/firewall-policy-book/
-// When a custom domain is added, set SITE to it and BASE to '/'.
-const SITE = 'https://moronim.github.io';
-const BASE = '/firewall-policy-book';
+// Served by GitHub Pages on the custom domain in public/CNAME; the DNS records
+// live in the Route 53 hosted zone for firewallpolicybook.com.
+const SITE = 'https://firewallpolicybook.com';
+const BASE = '/';
 
 // https://astro.build/config
 export default defineConfig({
