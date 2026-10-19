@@ -3,7 +3,7 @@ title: Downloads
 description: Templates and checklists from Firewall Policy Management in Modern Security Operations, in Word and Markdown.
 ---
 
-Every template comes in two formats. Word is the one to open if you will edit the document, track changes, and circulate it for approval. Markdown suits teams that keep policy in Git or a wiki next to their configuration.
+You may adapt these templates for use in your own organization. Every template comes in two formats. Word is the one to open if you will edit the document, track changes, and circulate it for approval. Markdown suits teams that keep policy in Git or a wiki next to their configuration.
 
 | Template | From the book | Download |
 | :-- | :-- | :-- |

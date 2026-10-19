@@ -52,6 +52,7 @@ const DL = 'public/downloads';
 mkdirSync(DL, { recursive: true });
 const ATTRIBUTION =
 	'*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. ' +
+	'You may adapt this template for use in your own organization. ' +
 	'Latest version: https://firewallpolicybook.com/downloads/*';
 
 // Splits an appendix into its `## ` sections, keyed by heading.

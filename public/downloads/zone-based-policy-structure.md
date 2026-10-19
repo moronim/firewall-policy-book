@@ -1,6 +1,6 @@
 # Zone-Based Policy Structure
 
-*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. You may adapt this template for use in your own organization. Latest version: https://firewallpolicybook.com/downloads/*
 
 Use this as the starting shape of an inter-zone access matrix, written as application-specific flows rather than open zone pairs. Illustrative only: unlisted flows are denied, and each allowed flow requires a validated business need.
 

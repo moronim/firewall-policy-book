@@ -1,6 +1,6 @@
 # Quick Reference Checklists
 
-*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. You may adapt this template for use in your own organization. Latest version: https://firewallpolicybook.com/downloads/*
 
 These are the operational checklists to run during day-to-day policy work. To place yourself on the maturity model, use the four stages described in Chapter 6 and score yourself with the self-assessment in Chapter 15, rather than repeating the exercise here.
 

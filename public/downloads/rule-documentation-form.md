@@ -1,6 +1,6 @@
 # Rule Documentation Form
 
-*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. You may adapt this template for use in your own organization. Latest version: https://firewallpolicybook.com/downloads/*
 
 Capture these fields for every rule so that an audit, or the next admin, can trace why the rule exists and when it should be revisited.
 

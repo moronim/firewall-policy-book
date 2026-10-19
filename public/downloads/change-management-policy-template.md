@@ -1,12 +1,12 @@
-# IT Change Management Policy — Companion Template
+# IT Change Management Policy: Companion Template
 
-*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. You may adapt this template for use in your own organization. Latest version: https://firewallpolicybook.com/downloads/*
 
-This is a companion template, not a chapter — a complete, ready-to-adapt corporate change-management policy you can hand to your organization as a starting point, rather than something to read front to back.
+This companion template is a complete, ready-to-adapt corporate change-management policy you can hand to your organization as a starting point, rather than something to read front to back.
 
 Firewall changes are where good policy management most often comes undone: a rushed rule during an incident, no review, no rollback plan, and no record of why. Putting those changes through real change control is what prevents that, which is why this book hands you a full policy to start from instead of leaving you to write one from scratch.
 
-Treat every value here as a default to tailor. The roles, risk tiers, approval thresholds, review cadences, and tool names are examples—replace them with your own. Most of this document governs all IT change, not just firewalls; if your remit is narrower, keep the sections on change categories, risk classification, the request-review-approve-implement workflow, rollback procedures, and the six-monthly firewall review, and set the rest aside. The short, firewall-specific starting point lives in the book's Appendix E as the Firewall Change Request Template; this is the full policy it grows into.
+Treat every value here as a default to tailor. The roles, risk tiers, approval thresholds, review cadences, and tool names are examples; replace them with your own. Most of this document governs all IT change, not just firewalls; if your remit is narrower, keep the sections on change categories, risk classification, the request-review-approve-implement workflow, rollback procedures, and the six-monthly firewall review, and set the rest aside. The short, firewall-specific starting point lives in the book's Appendix E as the Firewall Change Request Template; this is the full policy it grows into.
 
 ### Document Control Information
 
@@ -28,7 +28,12 @@ This Change Management Policy establishes the framework, procedures, and respons
 
 ### 1.2 Scope
 
-This policy applies to: - All IT infrastructure changes including servers, network devices, firewalls, security appliances, cloud resources, applications, and databases - Multi-cloud environments (Azure, AWS, GCP), hybrid infrastructure, and on-premises systems - Changes initiated manually, through ServiceNow, or automated via Infrastructure as Code (IaC) tools including Terraform, Ansible, and GitHub Actions - All IT personnel, distributed teams, security teams, network teams, technical leads, third-party vendors, and contractors
+This policy applies to:
+
+- All IT infrastructure changes including servers, network devices, firewalls, security appliances, cloud resources, applications, and databases
+- Multi-cloud environments (Azure, AWS, GCP), hybrid infrastructure, and on-premises systems
+- Changes initiated manually, through ServiceNow, or automated via Infrastructure as Code (IaC) tools including Terraform, Ansible, and GitHub Actions
+- All IT personnel, distributed teams, security teams, network teams, technical leads, third-party vendors, and contractors
 
 ### 1.3 Objectives
 
@@ -117,9 +122,21 @@ This policy applies to: - All IT infrastructure changes including servers, netwo
 
 Changes must be assessed against the following criteria to determine risk level:
 
-**Impact Assessment:** - Number of systems affected - Number of users impacted - Business criticality of affected systems - Potential for data loss or security exposure - Regulatory/compliance implications (PCI-DSS cardholder data environment, GDPR personal data systems, DORA critical ICT services)
+**Impact Assessment:**
 
-**Complexity Assessment:** - Technical complexity of implementation - Number of teams involved - Dependencies on other systems or changes - Reversibility and rollback complexity - Change implementation duration
+- Number of systems affected
+- Number of users impacted
+- Business criticality of affected systems
+- Potential for data loss or security exposure
+- Regulatory/compliance implications (PCI-DSS cardholder data environment, GDPR personal data systems, DORA critical ICT services)
+
+**Complexity Assessment:**
+
+- Technical complexity of implementation
+- Number of teams involved
+- Dependencies on other systems or changes
+- Reversibility and rollback complexity
+- Change implementation duration
 
 ## 4. CHANGE MANAGEMENT PROCESS
 
@@ -129,7 +146,12 @@ All changes must be documented in ServiceNow with the following information:
 
 **Mandatory RFC Fields:** 1. **Change Description:** Clear summary of what is being changed and why 2. **Business Justification:** Business need, compliance requirement, or security rationale 3. **Risk Classification:** Low, Medium, High, or Critical (based on Section 3.2) 4. **Affected Systems:** Complete list of systems, services, devices, and environments 5. **Implementation Plan:** Step-by-step procedure with timing estimates 6. **Rollback Plan:** Detailed reversal procedure with decision criteria 7. **Testing Plan:** Pre-implementation testing completed and results 8. **Impact Analysis:** Potential disruptions, dependencies, and user impact 9. **Implementation Window:** Proposed date/time with timezone 10. **Implementer(s):** Personnel executing the change (must differ from approver) 11. **Communication Plan:** Stakeholder notification approach for production changes
 
-**For Automated Changes (IaC/GitHub Actions):** - Include repository link, commit hash, and pipeline job ID - Attach Terraform plan output or Ansible playbook - Document automated testing results (unit tests, integration tests) - Specify automated rollback triggers and procedures
+**For Automated Changes (IaC/GitHub Actions):**
+
+- Include repository link, commit hash, and pipeline job ID
+- Attach Terraform plan output or Ansible playbook
+- Document automated testing results (unit tests, integration tests)
+- Specify automated rollback triggers and procedures
 
 ### 4.2 Change Review and Approval Workflow
 
@@ -167,7 +189,11 @@ All changes must be documented in ServiceNow with the following information:
 
 6.  Full documentation completed within 24 hours of implementation
 
-**Segregation of Duties:** - Change approvers cannot implement changes they approved - For small teams, peer review by second technical resource required - Automated changes must have code review by different engineer than author
+**Segregation of Duties:**
+
+- Change approvers cannot implement changes they approved
+- For small teams, peer review by second technical resource required
+- Automated changes must have code review by different engineer than author
 
 ### 4.3 Change Implementation
 
@@ -219,25 +245,62 @@ All changes must be documented in ServiceNow with the following information:
 
 ### 4.4 Change Verification and Validation
 
-**Post-Implementation Validation:** - Verify intended functionality achieved - Confirm no unintended side effects or errors - Validate system performance within acceptable parameters - Test dependent systems and integrations - Review monitoring alerts and logs - Confirm compliance with security policies - Document validation results in RFC
+**Post-Implementation Validation:**
 
-**Success Criteria:** - All systems operational within SLA parameters - No critical errors or alerts generated - Functionality tests passed - User acceptance obtained (where applicable) - No immediate rollback required
+- Verify intended functionality achieved
+- Confirm no unintended side effects or errors
+- Validate system performance within acceptable parameters
+- Test dependent systems and integrations
+- Review monitoring alerts and logs
+- Confirm compliance with security policies
+- Document validation results in RFC
+
+**Success Criteria:**
+
+- All systems operational within SLA parameters
+- No critical errors or alerts generated
+- Functionality tests passed
+- User acceptance obtained (where applicable)
+- No immediate rollback required
 
 ### 4.5 Rollback Procedures
 
 ### Rollback Decision Criteria:
 
-Immediate rollback required if: - Critical functionality failure detected - Security vulnerability introduced - Data integrity compromised - System performance degraded beyond acceptable thresholds (\>20% performance impact) - Unforeseen dependencies causing cascading failures - Implementation cannot be completed within planned window
+Immediate rollback required if:
+
+- Critical functionality failure detected
+- Security vulnerability introduced
+- Data integrity compromised
+- System performance degraded beyond acceptable thresholds (\>20% performance impact)
+- Unforeseen dependencies causing cascading failures
+- Implementation cannot be completed within planned window
 
 **Rollback Execution:** 1. **Decision:** Change implementer or on-call lead declares rollback 2. **Notification:** Immediate notification to stakeholders via email and established communication channel 3. **Execution:** Follow documented rollback procedure in RFC 4. **Verification:** Validate system returned to pre-change state 5. **Documentation:** Record rollback actions, timeline, and reasons in ServiceNow RFC 6. **Post-Mortem:** Conduct root cause analysis within 5 business days
 
-**Automated Rollback:** - IaC-managed changes should leverage version control for automated reversion (Terraform state rollback, Ansible playbook reversal) - CI/CD pipelines must include automated rollback triggers based on health checks - Automated rollbacks must still be documented in ServiceNow within 4 hours
+**Automated Rollback:**
+
+- IaC-managed changes should leverage version control for automated reversion (Terraform state rollback, Ansible playbook reversal)
+- CI/CD pipelines must include automated rollback triggers based on health checks
+- Automated rollbacks must still be documented in ServiceNow within 4 hours
 
 ### 4.6 Change Closure and Documentation
 
-**Change Closure Requirements:** - Update RFC with final implementation status (Success, Success with Issues, Failed, Rolled Back) - Document actual vs. planned timeline - Capture lessons learned and improvement opportunities - Attach final configuration files, logs, or evidence - Update CMDB (Configuration Management Database) with asset changes - Archive all related communications and approvals - Close RFC in ServiceNow
+**Change Closure Requirements:**
 
-**Retention Period:** - Change and audit-log records retained for at least the period required by applicable regulation; note that PCI DSS requires audit-log retention of at least 12 months, with the most recent 3 months immediately available (Req 10.5.1), while ISO 27001 leaves the period organization-defined and DORA does not fix a specific figure. This policy adopts a 7-year retention as an internal standard where longer retention is desired for legal or financial reasons - Critical system changes retained indefinitely - Audit trail immutable and tamper-evident
+- Update RFC with final implementation status (Success, Success with Issues, Failed, Rolled Back)
+- Document actual vs. planned timeline
+- Capture lessons learned and improvement opportunities
+- Attach final configuration files, logs, or evidence
+- Update CMDB (Configuration Management Database) with asset changes
+- Archive all related communications and approvals
+- Close RFC in ServiceNow
+
+**Retention Period:**
+
+- Change and audit-log records retained for at least the period required by applicable regulation; note that PCI DSS requires audit-log retention of at least 12 months, with the most recent 3 months immediately available (Req 10.5.1), while ISO 27001 leaves the period organization-defined and DORA does not fix a specific figure. This policy adopts a 7-year retention as an internal standard where longer retention is desired for legal or financial reasons
+- Critical system changes retained indefinitely
+- Audit trail immutable and tamper-evident
 
 ## 5. ROLES AND RESPONSIBILITIES
 
@@ -257,7 +320,14 @@ Immediate rollback required if: - Critical functionality failure detected - Secu
 
 **Members:** CISO, Technical Leads, Security Team Lead, Network Team Lead, Business Representatives
 
-**Responsibilities:** - Review and approve high-risk and critical changes - Assess risk and business impact of proposed changes - Resolve conflicts between competing change requests - Review emergency change post-implementation - Conduct periodic change management process reviews - Meet bi-weekly or as-needed for high-priority changes
+**Responsibilities:**
+
+- Review and approve high-risk and critical changes
+- Assess risk and business impact of proposed changes
+- Resolve conflicts between competing change requests
+- Review emergency change post-implementation
+- Conduct periodic change management process reviews
+- Meet bi-weekly or as-needed for high-priority changes
 
 ### 5.3 Technical Leads (Distributed IT Teams)
 
@@ -401,11 +471,20 @@ Immediate rollback required if: - Critical functionality failure detected - Secu
 
 ### 7.1 Standard Maintenance Windows
 
-**Production Systems:** - **Primary Window:** Saturday 22:00 - Sunday 06:00 CET - **Secondary Window:** Wednesday 22:00 - Thursday 02:00 CET
+**Production Systems:**
 
-**Non-Production Systems:** - **Development:** Anytime (no approval required for dev-only) - **Test/Staging:** Monday-Friday 08:00 - 18:00 CET
+- **Primary Window:** Saturday 22:00 - Sunday 06:00 CET
+- **Secondary Window:** Wednesday 22:00 - Thursday 02:00 CET
 
-**Cloud Environments:** - Follow same windows as production/non-production classification - Consider regional time zones for multi-region deployments
+**Non-Production Systems:**
+
+- **Development:** Anytime (no approval required for dev-only)
+- **Test/Staging:** Monday-Friday 08:00 - 18:00 CET
+
+**Cloud Environments:**
+
+- Follow same windows as production/non-production classification
+- Consider regional time zones for multi-region deployments
 
 ### 7.2 Change Freeze Periods
 
@@ -431,15 +510,38 @@ Immediate rollback required if: - Critical functionality failure detected - Secu
 
 ### 8.1 Stakeholder Notification Standards
 
-**Low-Risk Changes:** - Team-level notification via email or Teams channel - No advance notice required (post-implementation summary acceptable)
+**Low-Risk Changes:**
 
-**Medium-Risk Changes:** - Stakeholder email notification 48 hours in advance - Include: change summary, implementation window, expected impact, contact information - Post-implementation status update via email
+- Team-level notification via email or Teams channel
+- No advance notice required (post-implementation summary acceptable)
 
-**High-Risk Changes:** - Stakeholder email notification 72 hours in advance - Management briefing if significant user impact - Status updates during implementation window (start, milestones, completion) - Post-implementation report within 24 hours
+**Medium-Risk Changes:**
 
-**Critical Changes:** - Enterprise-wide email notification 5 business days in advance - Executive management briefing - User-facing communication if customer impact expected - Real-time status updates during implementation - Formal post-implementation report within 48 hours
+- Stakeholder email notification 48 hours in advance
+- Include: change summary, implementation window, expected impact, contact information
+- Post-implementation status update via email
 
-**Emergency Changes:** - Immediate notification to CISO and affected stakeholders - Real-time updates during incident resolution - Post-implementation notification within 4 hours - Detailed incident report within 24 hours
+**High-Risk Changes:**
+
+- Stakeholder email notification 72 hours in advance
+- Management briefing if significant user impact
+- Status updates during implementation window (start, milestones, completion)
+- Post-implementation report within 24 hours
+
+**Critical Changes:**
+
+- Enterprise-wide email notification 5 business days in advance
+- Executive management briefing
+- User-facing communication if customer impact expected
+- Real-time status updates during implementation
+- Formal post-implementation report within 48 hours
+
+**Emergency Changes:**
+
+- Immediate notification to CISO and affected stakeholders
+- Real-time updates during incident resolution
+- Post-implementation notification within 4 hours
+- Detailed incident report within 24 hours
 
 ### 8.2 Communication Channels
 
@@ -453,7 +555,12 @@ Immediate rollback required if: - Critical functionality failure detected - Secu
 
 ### 8.3 Communication Templates
 
-ServiceNow will maintain standardized templates for: - Change notification emails - Status update messages - Rollback notifications - Post-implementation summaries
+ServiceNow will maintain standardized templates for:
+
+- Change notification emails
+- Status update messages
+- Rollback notifications
+- Post-implementation summaries
 
 ## 9. METRICS AND CONTINUOUS IMPROVEMENT
 
@@ -628,7 +735,14 @@ Detailed risk scoring worksheet based on impact and complexity criteria
 
 ### Appendix C: Standard Change Catalog
 
-List of pre-approved standard changes with documented procedures: - Security patch deployment (OS, applications, firmware) - SSL/TLS certificate renewal - Firewall rule updates via AlgoSec workflow - User account provisioning/deprovisioning - Routine backup and restore operations - DNS record updates (non-critical systems)
+List of pre-approved standard changes with documented procedures:
+
+- Security patch deployment (OS, applications, firmware)
+- SSL/TLS certificate renewal
+- Firewall rule updates via AlgoSec workflow
+- User account provisioning/deprovisioning
+- Routine backup and restore operations
+- DNS record updates (non-critical systems)
 
 ### Appendix D: Communication Templates
 

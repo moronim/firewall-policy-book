@@ -1,6 +1,6 @@
 # Firewall Change Request Template
 
-*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. You may adapt this template for use in your own organization. Latest version: https://firewallpolicybook.com/downloads/*
 
 Use this as the record for any firewall rule change, one per change. Capture it before implementation, so the review, the rollback path, and the reason are all on file if the change is ever questioned.
 
