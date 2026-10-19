@@ -7,17 +7,21 @@ hero:
   image:
     file: ../../assets/cover.png
   actions:
+    - text: Take the self-assessment
+      link: self-assessment/
+      icon: right-arrow
     - text: Downloads
       link: downloads/
-      icon: right-arrow
-    - text: Checklists
-      link: checklists/
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid>
+	<Card title="Self-assessment" icon="seti:checkbox">
+		Score your program on 15 statements and see where it sits on the four-stage maturity model.
+		[Take the self-assessment](self-assessment/)
+	</Card>
 	<Card title="Downloads" icon="document">
 		The IT Change Management Policy template that accompanies the book, ready to adapt.
 		[Go to downloads](downloads/)

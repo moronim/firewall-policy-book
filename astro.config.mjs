@@ -23,6 +23,7 @@ export default defineConfig({
 				{
 					label: 'Use the book',
 					items: [
+						{ label: 'Self-assessment', slug: 'self-assessment' },
 						{ label: 'Downloads', slug: 'downloads' },
 						{ label: 'Checklists', slug: 'checklists' },
 						{ label: 'Templates', slug: 'templates' },

@@ -1,0 +1,58 @@
+{
+	"min": 0,
+	"max": 5,
+	"sections": [
+		{
+			"title": "Governance and Process",
+			"items": [
+				"We have a documented firewall policy describing security intent and architecture",
+				"We have formal change control that all changes follow",
+				"We track and identify who made each change, when, and why",
+				"We review high-risk rules at least quarterly and the full rulebase at a documented, risk-based cadence that meets any regulatory minimum",
+				"We have defined roles and responsibilities"
+			]
+		},
+		{
+			"title": "Tools and Automation",
+			"items": [
+				"We have centralized management for all firewalls",
+				"We can deploy rules to multiple firewalls simultaneously",
+				"We can simulate rules before deployment",
+				"We can analyze rule usage and identify unused rules automatically",
+				"We have automated compliance reporting and continuous monitoring"
+			]
+		},
+		{
+			"title": "Operational Effectiveness",
+			"items": [
+				"Standard, low-risk changes have a median lead time under three business days, from complete request to validated deployment",
+				"In the last four quarters, no more than one material production incident was caused by a firewall change, as defined in our incident policy",
+				"Rulebase is well-documented and auditable",
+				"We can identify systems accessing critical data",
+				"We measure unplanned operational work and keep it low enough to leave planned capacity for engineering and improvement (30% or less is an illustrative target)"
+			]
+		}
+	],
+	"stages": [
+		{
+			"min": 0,
+			"max": 18,
+			"stage": 1
+		},
+		{
+			"min": 19,
+			"max": 37,
+			"stage": 2
+		},
+		{
+			"min": 38,
+			"max": 56,
+			"stage": 3
+		},
+		{
+			"min": 57,
+			"max": 75,
+			"stage": 4
+		}
+	]
+}
