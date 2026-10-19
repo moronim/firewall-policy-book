@@ -1,8 +1,10 @@
-// Copies the reader-facing appendices and the companion template from the book
-// manuscript into the site, so the site never drifts from the book.
+// Copies the reader-facing appendices, the downloadable templates, and the
+// self-assessment from the book manuscript into the site, so the site never
+// drifts from the book. Needs pandoc and python3 for the Word files.
 //
 // Usage: npm run sync -- "/path/to/Firewall Book"
-import { readFileSync, writeFileSync, copyFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
 const book = process.argv[2];
@@ -44,12 +46,109 @@ for (const page of pages) {
 	console.log(`${page.from} -> ${page.to}`);
 }
 
-mkdirSync('public/downloads', { recursive: true });
-copyFileSync(
-	join(book, 'companion/change-management-policy-template.md'),
-	'public/downloads/change-management-policy-template.md',
+// Downloadable templates: each one as Markdown (for Git and wikis) and Word
+// (for people who edit and circulate policy documents), plus the zone matrix as CSV.
+const DL = 'public/downloads';
+mkdirSync(DL, { recursive: true });
+const ATTRIBUTION =
+	'*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. ' +
+	'Latest version: https://firewallpolicybook.com/downloads/*';
+
+// Splits an appendix into its `## ` sections, keyed by heading.
+const sectionsOf = (md) =>
+	Object.fromEntries(
+		md
+			.split(/^## /m)
+			.slice(1)
+			.map((chunk) => {
+				const [heading, ...rest] = chunk.split('\n');
+				return [heading.trim(), rest.join('\n').trim()];
+			}),
+	);
+
+// The book prints each form as a blockquote of "Label: [placeholder]" lines with
+// ALL-CAPS group headings. As a download it works better as fill-in tables.
+const formToTables = (section) => {
+	const all = section.split('\n');
+	const first = all.findIndex((l) => l.startsWith('>'));
+	const last = all.findLastIndex((l) => l.startsWith('>'));
+	const intro = all.slice(0, first).join('\n');
+	const outro = all.slice(last + 1).join('\n').trim();
+	const lines = all
+		.slice(first, last + 1)
+		.map((l) => l.replace(/^>\s?/, '').trim())
+		.filter(Boolean)
+		.map((l) => l.replace(/\\([[\]])/g, '$1'));
+	const out = [intro.trim()];
+	let rows = [];
+	const flush = () => {
+		if (rows.length) out.push('| Field | Entry |\n|----------|----------------------|\n' + rows.join('\n'));
+		rows = [];
+	};
+	for (const line of lines.slice(1)) {
+		// line 0 is the form's own title, which becomes the document title
+		const group = line.match(/^([A-Z][A-Z ()/&-]+):$/);
+		if (group) {
+			flush();
+			out.push('## ' + group[1].charAt(0) + group[1].slice(1).toLowerCase());
+			continue;
+		}
+		// "Requested by: [Name], Date: [Date]" holds two fields; give each its own row.
+		for (const field of line.split(/(?<=\]), (?=[A-Z][\w ()/-]*: \[)/)) {
+			const i = field.indexOf(': ');
+			rows.push(`| ${field.slice(0, i)} | ${field.slice(i + 2)} |`);
+		}
+	}
+	flush();
+	if (outro) out.push(outro);
+	return out.join('\n\n');
+};
+
+const download = (name, title, body) => {
+	const md = `# ${title}\n\n${ATTRIBUTION}\n\n${body.trim()}\n`;
+	writeFileSync(join(DL, `${name}.md`), md);
+	// --columns forces pandoc to size table columns by their dash widths, so the
+	// entry column of a form gets most of the page.
+	execFileSync('pandoc', [
+		join(DL, `${name}.md`),
+		'--from=markdown',
+		'--columns=20',
+		'--reference-doc=scripts/reference.docx',
+		'--output',
+		join(DL, `${name}.docx`),
+	]);
+	execFileSync('python3', ['scripts/docx-table-borders.py', join(DL, `${name}.docx`)]);
+	console.log(`-> ${DL}/${name}.md, .docx`);
+};
+
+const appE = sectionsOf(readFileSync(join(book, 'book/22-appendix-e-templates.md'), 'utf8'));
+const appD = readFileSync(join(book, 'book/21-appendix-d-checklists.md'), 'utf8');
+for (const key of ['Zone-Based Policy Structure', 'Rule Documentation Form', 'Firewall Change Request Template']) {
+	if (!appE[key]) {
+		console.error(`Appendix E no longer has a "${key}" section; check the sync script.`);
+		process.exit(1);
+	}
+}
+
+const policy = readFileSync(join(book, 'companion/change-management-policy-template.md'), 'utf8');
+download(
+	'change-management-policy-template',
+	policy.match(/^# (.*)$/m)[1],
+	policy.replace(/^# .*\n+/, ''),
 );
-console.log('companion/change-management-policy-template.md -> public/downloads/');
+download('firewall-change-request', 'Firewall Change Request Template', formToTables(appE['Firewall Change Request Template']));
+download('rule-documentation-form', 'Rule Documentation Form', formToTables(appE['Rule Documentation Form']));
+download('zone-based-policy-structure', 'Zone-Based Policy Structure', appE['Zone-Based Policy Structure']);
+download('checklists', 'Quick Reference Checklists', appD.replace(/^# .*\n+/, ''));
+
+// The zone matrix is the one template people extend in a spreadsheet.
+const csvCell = (c) => (/[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c);
+const zoneRows = appE['Zone-Based Policy Structure']
+	.split('\n')
+	.filter((l) => l.startsWith('|') && !/^\|[-\s|]+\|$/.test(l))
+	.map((l) => l.slice(1, -1).split('|').map((c) => csvCell(c.trim())).join(','));
+writeFileSync(join(DL, 'zone-based-policy-structure.csv'), zoneRows.join('\r\n') + '\r\n');
+console.log(`-> ${DL}/zone-based-policy-structure.csv`);
 
 // The Chapter 15 self-assessment drives the interactive page, so extract its
 // sections, statements, and stage bands rather than copying them by hand.

@@ -10,11 +10,11 @@ Companion site for *Firewall Policy Management in Modern Security Operations* by
 | `npm run dev` | Local dev server at `localhost:4321/` |
 | `npm run build` | Build the site into `./dist/` |
 | `npm run preview` | Serve the built site locally |
-| `npm run sync -- "/path/to/Firewall Book"` | Refresh Resources, Checklists, Templates, and the change policy download from the manuscript |
+| `npm run sync -- "/path/to/Firewall Book"` | Refresh Resources, Checklists, Templates, the self-assessment, and every download (Markdown, Word, CSV) from the manuscript. Needs pandoc and python3. |
 
 ## Content
 
-Hand-written pages live in `src/content/docs/` (`index.mdx`, `downloads.md`, `errata.md`, `about.md`). `resources.md`, `checklists.md`, and `templates.md` are generated from Appendices C, D, and E by `npm run sync`, so edit the manuscript and re-sync rather than editing them here.
+Hand-written pages live in `src/content/docs/` (`index.mdx`, `downloads.md`, `errata.md`, `about.md`). `resources.md`, `checklists.md`, and `templates.md` are generated from Appendices C, D, and E by `npm run sync`, so edit the manuscript and re-sync rather than editing them here. The same applies to `public/downloads/` and `src/data/assessment.json`. The Word files take their styles from `scripts/reference.docx`, and `scripts/docx-table-borders.py` writes the table borders onto each file so editors that ignore table styles, such as Google Docs, still show them.
 
 ## Domain
 

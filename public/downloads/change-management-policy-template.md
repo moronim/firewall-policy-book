@@ -1,5 +1,7 @@
 # IT Change Management Policy — Companion Template
 
+*From Firewall Policy Management in Modern Security Operations by Maurizio Moroni. Latest version: https://firewallpolicybook.com/downloads/*
+
 This is a companion template, not a chapter — a complete, ready-to-adapt corporate change-management policy you can hand to your organization as a starting point, rather than something to read front to back.
 
 Firewall changes are where good policy management most often comes undone: a rushed rule during an incident, no review, no rollback plan, and no record of why. Putting those changes through real change control is what prevents that, which is why this book hands you a full policy to start from instead of leaving you to write one from scratch.
